@@ -26,6 +26,14 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
 RUN python3 -m venv /app/venv
 ENV PATH="/app/venv/bin:$PATH"
 
+# 创建缓存目录
+RUN mkdir -p /app/.cache/torch /app/.cache/huggingface
+
+# 设置环境变量指向新的缓存位置
+ENV TORCH_HOME=/app/.cache/torch \
+    TRANSFORMERS_CACHE=/app/.cache/huggingface \
+    HF_HOME=/app/.cache/huggingface
+
 COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
@@ -46,12 +54,19 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
         python3-venv && \
     rm -rf /var/lib/apt/lists/*
 
+# 创建缓存目录
+RUN mkdir -p /app/.cache/torch /app/.cache/huggingface
+
+# 设置环境变量指向缓存位置
+ENV TORCH_HOME=/app/.cache/torch \
+    TRANSFORMERS_CACHE=/app/.cache/huggingface \
+    HF_HOME=/app/.cache/huggingface \
+    PATH="/app/venv/bin:$PATH"
+
 # 从构建阶段复制虚拟环境和模型
 COPY --from=builder /app/venv /app/venv
-COPY --from=builder /root/.cache/torch /root/.cache/torch
-COPY --from=builder /root/.cache/huggingface /root/.cache/huggingface
-
-ENV PATH="/app/venv/bin:$PATH"
+COPY --from=builder /app/.cache/torch/ /app/.cache/torch/
+COPY --from=builder /app/.cache/huggingface/ /app/.cache/huggingface/
 
 COPY main.py .
 COPY entrypoint.sh /usr/local/bin/
