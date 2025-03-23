@@ -1,0 +1,4 @@
+fastapi
+FlagEmbedding
+uvicorn[standard]
+einops
