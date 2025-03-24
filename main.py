@@ -177,7 +177,14 @@ async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
             vec_type = "dense_embedding"
         elif item.return_sparse:
             vectors = result["lexical_weights"]
-            tokens = len(next(iter(vectors)))  # 估算token数量
+            # 增加鲁棒性：检查词汇权重字典是否为空
+            if not vectors:
+                tokens = 1  # 当词汇权重为空时设置默认token数
+            else:
+                try:
+                    tokens = len(next(iter(vectors)))  # 尝试估算token数量
+                except StopIteration:
+                    tokens = 1  # 异常情况下设置默认token数
             vector_data = vectors
             vec_type = "sparse_embedding"
         elif item.return_colbert_vecs:
@@ -216,7 +223,14 @@ async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
                 vec_type = "dense_embedding"
             elif item.return_sparse:
                 vectors = result["lexical_weights"]
-                cur_tokens = len(next(iter(vectors)))  # 估算token数量
+                # 增加鲁棒性：检查词汇权重字典是否为空
+                if not vectors:
+                    cur_tokens = 1  # 当词汇权重为空时设置默认token数
+                else:
+                    try:
+                        cur_tokens = len(next(iter(vectors)))  # 尝试估算token数量
+                    except StopIteration:
+                        cur_tokens = 1  # 异常情况下设置默认token数
                 vector_data = vectors
                 vec_type = "sparse_embedding"
             elif item.return_colbert_vecs:
