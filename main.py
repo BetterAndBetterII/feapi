@@ -4,9 +4,9 @@ import os
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from FlagEmbedding import FlagModel
+from FlagEmbedding import BGEM3FlagModel
 
-models: Dict[str, FlagModel] = {}
+models: Dict[str, BGEM3FlagModel] = {}
 model_name = os.getenv("MODEL", "BAAI/bge-m3")
 
 
@@ -47,7 +47,7 @@ class EmbeddingResponse(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    models[model_name] = FlagModel(model_name, use_fp16=True)
+    models[model_name] = BGEM3FlagModel(model_name, use_fp16=True)
     yield
 
 
@@ -56,7 +56,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.post("/v1/embeddings")
 async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
-    model: FlagModel = models[model_name]
+    model: BGEM3FlagModel = models[model_name]
     # 获取所有额外的参数
     encode_kwargs = dict(item.kwargs)
     # 添加请求中的其他额外字段
