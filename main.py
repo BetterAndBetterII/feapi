@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field, validator, root_validator
+from pydantic import BaseModel, Field, model_validator
 from FlagEmbedding import BGEM3FlagModel
 
 models: Dict[str, BGEM3FlagModel] = {}
@@ -41,11 +41,11 @@ class EmbeddingRequest(BaseModel):
     class Config:
         extra = "allow"  # 允许额外的字段
         
-    @root_validator
-    def validate_return_flags(cls, values):
-        return_dense = values.get("return_dense")
-        return_sparse = values.get("return_sparse")
-        return_colbert_vecs = values.get("return_colbert_vecs")
+    @model_validator(mode='after')
+    def validate_return_flags(self):
+        return_dense = self.return_dense
+        return_sparse = self.return_sparse
+        return_colbert_vecs = self.return_colbert_vecs
         
         # 检查是否只有一个标志为True
         true_count = sum(bool(flag) for flag in [return_dense, return_sparse, return_colbert_vecs] if flag is not None)
@@ -55,9 +55,9 @@ class EmbeddingRequest(BaseModel):
         
         # 如果都是False或None，默认使用dense
         if true_count == 0:
-            values["return_dense"] = True
+            self.return_dense = True
             
-        return values
+        return self
 
 
 class EmbeddingData(BaseModel):
