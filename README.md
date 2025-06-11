@@ -1,6 +1,4 @@
-# Jina Embeddings Docker Deployment
-
-## Credit to [Sentence Transformers API From substratusai](https://github.com/substratusai/stapi) for the amazing work!
+# BGEM3 Flag Embeddings Docker Deployment
 
 OpenAI compatible embedding API that uses Sentence Transformer for embeddings
 
