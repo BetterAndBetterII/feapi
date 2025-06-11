@@ -140,7 +140,7 @@ def process_vector_data(vector_data, dimensions=None, encoding_format="float"):
 async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
     model: BGEM3FlagModel = models[model_name]
     # 获取所有额外的参数
-    encode_kwargs = dict(item.kwargs)
+    encode_kwargs = dict()
     
     # 添加BGR-M3特定参数
     encode_kwargs.update({
@@ -160,11 +160,11 @@ async def embedding(item: EmbeddingRequest) -> EmbeddingResponse:
             del encode_kwargs[param]
     
     # 添加请求中的其他额外字段
-    encode_kwargs.update({
-        k: v for k, v in item.model_dump().items() 
-        if k not in {"input", "model", "kwargs", "return_dense", "return_sparse", 
-                     "return_colbert_vecs", "dimensions", "encoding_format"}
-    })
+    # encode_kwargs.update({
+    #     k: v for k, v in item.model_dump().items() 
+    #     if k not in {"input", "model", "kwargs", "return_dense", "return_sparse", 
+    #                  "return_colbert_vecs", "dimensions", "encoding_format"}
+    # })
     
     if isinstance(item.input, str):
         result = model.encode(item.input, **encode_kwargs)
